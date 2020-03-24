@@ -18,33 +18,42 @@ namespace CovidDashboardScraper
 
         static async Task Main(string[] args)
         {
-            Console.WriteLine(DateTime.Now);
-            var fileIOTask = CSVHandler.MakeHandlerAsync(FILE_PATH);
-            var scrapeTask = ScrapeAsync();
-            
-            List<TableRow> scrapedData = new List<TableRow>();
-            HtmlDocument traverser = new HtmlDocument();
-            string scrapedPage = await scrapeTask;
-            traverser.LoadHtml(scrapedPage);
-            string usaDataTable_xPath = "//table[@id='sortable_table_USA']";
-            HtmlNodeCollection search = traverser.DocumentNode.SelectNodes(usaDataTable_xPath);
-            if (search.Count != 1)
+            try
             {
-                Console.WriteLine("Found " + search.Count + "tables??!");
-            }
-            else
-            {
-                HtmlNode tableBody = search[0].SelectSingleNode("tbody");
-                foreach (HtmlNode row in tableBody.ChildNodes)
+                var fileIOTask = CSVHandler.MakeHandlerAsync(FILE_PATH);
+                var scrapeTask = ScrapeAsync();
+
+                List<TableRow> scrapedData = new List<TableRow>();
+                HtmlDocument traverser = new HtmlDocument();
+                string scrapedPage = await scrapeTask;
+                traverser.LoadHtml(scrapedPage);
+                string usaDataTable_xPath = "//table[@id='sortable_table_USA']";
+                HtmlNodeCollection search = traverser.DocumentNode.SelectNodes(usaDataTable_xPath);
+                if (search.Count != 1)
                 {
-                    if (row.Name.Equals("tr"))
-                    {
-                        TableRow processed = TableRow.Parse_tr_Element(row);
-                        scrapedData.Add(processed);
-                    }
+                    throw new Exception("Found " + search.Count + "tables??!");
                 }
-                CSVHandler fileIO = await fileIOTask;
-                await fileIO.Write(scrapedData, DateTime.Now);
+                else
+                {
+                    HtmlNode tableBody = search[0].SelectSingleNode("tbody");
+                    foreach (HtmlNode row in tableBody.ChildNodes)
+                    {
+                        if (row.Name.Equals("tr"))
+                        {
+                            TableRow processed = TableRow.Parse_tr_Element(row);
+                            scrapedData.Add(processed);
+                        }
+                    }
+                    CSVHandler fileIO = await fileIOTask;
+                    await fileIO.Write(scrapedData, DateTime.Now);
+                    Console.WriteLine("Done.");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("An exception was thron, and this error handling is not sophisticated enough to figure out what went wrong.");
+                Console.WriteLine("Here is the exception:");
+                Console.WriteLine(e);
             }
         }
 
