@@ -27,7 +27,7 @@ namespace CovidDashboardScraper
                 HtmlDocument traverser = new HtmlDocument();
                 string scrapedPage = await scrapeTask;
                 traverser.LoadHtml(scrapedPage);
-                string usaDataTable_xPath = "//table[@id='sortable_table_USA']";
+                string usaDataTable_xPath = "//table[@id='sortable_table_usa']";
                 HtmlNodeCollection search = traverser.DocumentNode.SelectNodes(usaDataTable_xPath);
                 if (search.Count != 1)
                 {
