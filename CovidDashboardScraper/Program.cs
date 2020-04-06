@@ -1,5 +1,4 @@
-﻿using CsvHelper;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,51 +11,70 @@ namespace CovidDashboardScraper
 {
     public class Program
     {
-        static HttpClient client;
         const string URL = "https://ncov2019.live/data";
-        private const string FILE_PATH = "../../../historical.csv";
+        private const string FILE_PATH = "historical.csv";
+        private const string usaDataTable_xPath = "//table[@id='sortable_table_usa']";
 
-        static async Task Main(string[] args)
+        // We will have to sleep for an hour.
+        // Twelve hours in milliseconds = 1000 ms/s * 60 s/min * 60 min/hr * 12
+        private const int TWELVE_HOURS = 1000 * 60 * 60 * 12;
+
+        public static async Task Main(string[] args)
         {
             try
             {
-                var fileIOTask = CSVHandler.MakeHandlerAsync(FILE_PATH);
-                var scrapeTask = ScrapeAsync();
+                while (true)
+                {
+                    Task<string> scrapeTask = ScrapeAsync();
 
-                List<TableRow> scrapedData = new List<TableRow>();
-                HtmlDocument traverser = new HtmlDocument();
-                string scrapedPage = await scrapeTask;
-                traverser.LoadHtml(scrapedPage);
-                string usaDataTable_xPath = "//table[@id='sortable_table_usa']";
-                HtmlNodeCollection search = traverser.DocumentNode.SelectNodes(usaDataTable_xPath);
-                if (search.Count != 1)
-                {
-                    throw new Exception("Found " + search.Count + "tables??!");
-                }
-                else
-                {
-                    HtmlNode tableBody = search[0].SelectSingleNode("tbody");
-                    foreach (HtmlNode row in tableBody.ChildNodes)
+                    if (!File.Exists(FILE_PATH))
                     {
-                        if (row.Name.Equals("tr"))
-                        {
-                            TableRow processed = TableRow.Parse_tr_Element(row);
-                            scrapedData.Add(processed);
-                        }
+                        CSVHandler.Create(FILE_PATH);
                     }
-                    CSVHandler fileIO = await fileIOTask;
-                    await fileIO.Write(scrapedData, DateTime.Now);
-                    Console.WriteLine("Done.");
+
+                    string scrapedPage = await scrapeTask;
+                    HtmlNodeCollection search = FindUsaData(scrapedPage);
+                    if (search.Count != 1)
+                    {
+                        throw new Exception("Found " + search.Count + "tables??!");
+                    }
+                    else
+                    {
+                        HtmlNode tableBody = search[0].SelectSingleNode("tbody");
+
+                        List<TableRow> processedHTML = new List<TableRow>();
+                        foreach (HtmlNode row in tableBody.ChildNodes)
+                        {
+                            if (row.Name.Equals("tr"))
+                            {
+                                TableRow processed = TableRow.Parse_tr_Element(row);
+                                processedHTML.Add(processed);
+                            }
+                        }
+
+                        CSVHandler handler = CSVHandler.MakeHandler(FILE_PATH);
+                        DateTime now = DateTime.Now;
+                        handler.Write(processedHTML, now);
+                        Console.WriteLine($"Finished a scraping at {now}");
+                        System.Threading.Thread.Sleep(TWELVE_HOURS);
+                    } 
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("An exception was thron, and this error handling is not sophisticated enough to figure out what went wrong.");
+                Console.WriteLine("An exception was thrown, and this error handling is not sophisticated enough to figure out what went wrong.");
                 Console.WriteLine("Here is the exception:");
                 Console.WriteLine(e);
             }
         }
 
+        private static HtmlNodeCollection FindUsaData(string scrapedPage)
+        {
+            HtmlDocument traverser = new HtmlDocument();
+            traverser.LoadHtml(scrapedPage);
+            HtmlNodeCollection search = traverser.DocumentNode.SelectNodes(usaDataTable_xPath);
+            return search;
+        }
 
         private static async Task<string> ScrapeAsync()
         {
