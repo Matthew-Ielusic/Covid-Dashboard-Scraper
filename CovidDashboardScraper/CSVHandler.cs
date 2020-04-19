@@ -7,18 +7,20 @@ using System.Threading.Tasks;
 
 namespace CovidDashboardScraper
 {
-    class CSVHandler
+    public class CSVHandler
     {
+        private const string HEADER_LINE = "Date, TOTAL, New York, Washington, California, New Jersey, Illinois, Michigan, Florida, Louisiana, Texas, Massachusetts, Georgia, Colorado, Tennessee, Pennsylvania, Wisconsin, Ohio, Connecticut, North Carolina, Maryland, Virginia, Mississippi, Indiana, South Carolina, Nevada, Utah, Minnesota, Arkansas, Oregon, Arizona, Missouri, Alabama, District Of Columbia, Kentucky, Iowa, Maine, Rhode Island, Oklahoma, Kansas, New Hampshire, New Mexico, Hawaii, Vermont, Nebraska, Delaware, Diamond Princess Ship, Idaho, Montana, North Dakota, Guam, Wyoming, Puerto Rico, Alaska, Grand Princess Ship, South Dakota, West Virginia, United States Virgin Islands, Wuhan Repatriated, US Military, Northern Mariana Islands, Navajo Nation";
+        
         private string path;
         private List<String> stateNames;
-        public static async Task<CSVHandler> MakeHandlerAsync(String path)
+        public static CSVHandler MakeHandler(String path)
         {
             using (StreamReader reader = new StreamReader(path))
             {
-                Task<String> task = reader.ReadLineAsync();
+                string header = reader.ReadLine(); 
+                
                 CSVHandler output = new CSVHandler();
                 output.path = path;
-                string header = await task;
 
                 output.stateNames = new List<String>(header.Split(", "));
                 output.stateNames.Remove("Date");
@@ -26,12 +28,20 @@ namespace CovidDashboardScraper
             }
         }
 
-        public async Task Write(IEnumerable<TableRow> data, DateTime timestamp)
+
+        // Smashes any file that happens to be located at 'path'
+        internal static void Create(string path)
+        {
+            using (StreamWriter writer = new StreamWriter(path))
+                writer.WriteLine(HEADER_LINE);
+        }
+
+        public void Write(IEnumerable<TableRow> data, DateTime timestamp)
         {
             Dictionary<String, Int32> dataIndexer = new Dictionary<String, Int32>();
             foreach (var d in data)
             {
-                dataIndexer.Add(d.Name, d.Confirmed);
+                dataIndexer[d.Name] = d.Confirmed;
             }
 
             List<String> fields = new List<String>();
@@ -44,7 +54,7 @@ namespace CovidDashboardScraper
 
             using (StreamWriter writer = new StreamWriter(this.path, append: true))
             {
-                await writer.WriteLineAsync(line);
+                writer.WriteLine(line);
             }
         }
     }
