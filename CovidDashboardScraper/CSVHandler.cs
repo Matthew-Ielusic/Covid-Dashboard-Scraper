@@ -9,7 +9,7 @@ namespace CovidDashboardScraper
 {
     public class CSVHandler
     {
-        private const string HEADER_LINE = "Date, TOTAL, New York, Washington, California, New Jersey, Illinois, Michigan, Florida, Louisiana, Texas, Massachusetts, Georgia, Colorado, Tennessee, Pennsylvania, Wisconsin, Ohio, Connecticut, North Carolina, Maryland, Virginia, Mississippi, Indiana, South Carolina, Nevada, Utah, Minnesota, Arkansas, Oregon, Arizona, Missouri, Alabama, District of Columbia, Kentucky, Iowa, Maine, Rhode Island, Oklahoma, Kansas, New Hampshire, New Mexico, Hawaii, Vermont, Nebraska, Delaware, Diamond Princess (repatriated), Idaho, Montana, North Dakota, Guam, Wyoming, Puerto Rico, Alaska, Grand Princess, South Dakota, West Virginia, U.S. Virgin Islands, Wuhan (repatriated), American Samoa, Northern Mariana Islands";
+        private const string HEADER_LINE = "Date, TOTAL, New York, Washington, California, New Jersey, Illinois, Michigan, Florida, Louisiana, Texas, Massachusetts, Georgia, Colorado, Tennessee, Pennsylvania, Wisconsin, Ohio, Connecticut, North Carolina, Maryland, Virginia, Mississippi, Indiana, South Carolina, Nevada, Utah, Minnesota, Arkansas, Oregon, Arizona, Missouri, Alabama, District Of Columbia, Kentucky, Iowa, Maine, Rhode Island, Oklahoma, Kansas, New Hampshire, New Mexico, Hawaii, Vermont, Nebraska, Delaware, Diamond Princess Ship, Idaho, Montana, North Dakota, Guam, Wyoming, Puerto Rico, Alaska, Grand Princess Ship, South Dakota, West Virginia, United States Virgin Islands, Wuhan Repatriated, US Military, Northern Mariana Islands, Navajo Nation";
         
         private string path;
         private List<String> stateNames;
@@ -41,7 +41,7 @@ namespace CovidDashboardScraper
             Dictionary<String, Int32> dataIndexer = new Dictionary<String, Int32>();
             foreach (var d in data)
             {
-                dataIndexer.Add(d.Name, d.Confirmed);
+                dataIndexer[d.Name] = d.Confirmed;
             }
 
             List<String> fields = new List<String>();

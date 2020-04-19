@@ -17,7 +17,7 @@ namespace CovidDashboardScraper
 
         // We will have to sleep for an hour.
         // Twelve hours in milliseconds = 1000 ms/s * 60 s/min * 60 min/hr * 12
-        private const int TWELVE_HOURS = 1000 * 60 * 60 * 12;
+        private const int FOUR_HOURS = 1000 * 60 * 60 * 4;
 
         public static async Task Main(string[] args)
         {
@@ -56,8 +56,8 @@ namespace CovidDashboardScraper
                         DateTime now = DateTime.Now;
                         handler.Write(processedHTML, now);
                         Console.WriteLine($"Finished a scraping at {now}");
-                        System.Threading.Thread.Sleep(TWELVE_HOURS);
-                    } 
+                        System.Threading.Thread.Sleep(FOUR_HOURS);
+                    }
                 }
             }
             catch (Exception e)
@@ -65,6 +65,7 @@ namespace CovidDashboardScraper
                 Console.WriteLine("An exception was thrown, and this error handling is not sophisticated enough to figure out what went wrong.");
                 Console.WriteLine("Here is the exception:");
                 Console.WriteLine(e);
+                Console.ReadLine();
             }
         }
 
