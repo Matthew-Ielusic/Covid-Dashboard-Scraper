@@ -11,8 +11,8 @@ namespace CovidDashboardScraper
 
         internal static TableRow Parse_tr_Element(HtmlNode trElement)
         {
-            const int NAME_INDEX = 1;
-            const int TOTAL_INDEX = 3;
+            const int NAME_INDEX = 3;
+            const int TOTAL_INDEX = 5;
             const string STAR_HTML = "&#9733;";
 
             string name = trElement.ChildNodes[NAME_INDEX].InnerText.Trim();

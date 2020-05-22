@@ -13,7 +13,7 @@ namespace CovidDashboardScraper
     {
         const string URL = "https://ncov2019.live/data";
         private const string FILE_PATH = "historical.csv";
-        private const string usaDataTable_xPath = "//table[@id='sortable_table_usa']";
+        private const string usaDataTable_xPath = "//table[@id='sortable_table_mobile_unitedstates']";
 
         // We will have to sleep for an hour.
         // Twelve hours in milliseconds = 1000 ms/s * 60 s/min * 60 min/hr * 12
@@ -66,6 +66,7 @@ namespace CovidDashboardScraper
                 Console.WriteLine("Here is the exception:");
                 Console.WriteLine(e);
                 Console.ReadLine();
+                throw e;
             }
         }
 

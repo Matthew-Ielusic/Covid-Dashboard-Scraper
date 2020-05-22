@@ -9,8 +9,10 @@ namespace CovidDashboardScraper
 {
     public class CSVHandler
     {
-        private const string HEADER_LINE = "Date, TOTAL, New York, Washington, California, New Jersey, Illinois, Michigan, Florida, Louisiana, Texas, Massachusetts, Georgia, Colorado, Tennessee, Pennsylvania, Wisconsin, Ohio, Connecticut, North Carolina, Maryland, Virginia, Mississippi, Indiana, South Carolina, Nevada, Utah, Minnesota, Arkansas, Oregon, Arizona, Missouri, Alabama, District Of Columbia, Kentucky, Iowa, Maine, Rhode Island, Oklahoma, Kansas, New Hampshire, New Mexico, Hawaii, Vermont, Nebraska, Delaware, Diamond Princess Ship, Idaho, Montana, North Dakota, Guam, Wyoming, Puerto Rico, Alaska, Grand Princess Ship, South Dakota, West Virginia, United States Virgin Islands, Wuhan Repatriated, US Military, Northern Mariana Islands, Navajo Nation";
-        
+        private const string HEADER_LINE = "Date, TOTAL, Alabama, Alaska, Arizona, Arkansas, California, Colorado, Connecticut, Delaware, District of Columbia, Federal Prisons, Florida, Georgia, Guam, Hawaii, Idaho, Illinois, Indiana, Iowa, Kansas, Kentucky, Louisiana, Maine, Maryland, Massachusetts, Michigan, Minnesota, Mississippi, Missouri, Montana, Navajo Nation, Nebraska, Nevada, New Hampshire, New Jersey, New Mexico, New York, North Carolina, North Dakota, Northern Mariana Islands, Ohio, Oklahoma, Oregon, Pennsylvania, Puerto Rico, Rhode Island, South Carolina, South Dakota, Tennessee, Texas, U.S. Military, United States Virgin Islands, Utah, Vermont, Veteran Affairs, Virgin Islands, Virginia, Washington, West Virginia, Wisconsin, Wuhan Repatriated, Wyoming";
+
+
+
         private string path;
         private List<String> stateNames;
         public static CSVHandler MakeHandler(String path)
