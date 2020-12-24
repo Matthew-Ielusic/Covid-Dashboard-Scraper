@@ -9,9 +9,8 @@ namespace CovidDashboardScraper
 {
     public class CSVHandler
     {
-        private const string HEADER_LINE = "Date, TOTAL, Alabama, Alaska, Arizona, Arkansas, California, Colorado, Connecticut, Delaware, District of Columbia, Federal Prisons, Florida, Georgia, Guam, Hawaii, Idaho, Illinois, Indiana, Iowa, Kansas, Kentucky, Louisiana, Maine, Maryland, Massachusetts, Michigan, Minnesota, Mississippi, Missouri, Montana, Navajo Nation, Nebraska, Nevada, New Hampshire, New Jersey, New Mexico, New York, North Carolina, North Dakota, Northern Mariana Islands, Ohio, Oklahoma, Oregon, Pennsylvania, Puerto Rico, Rhode Island, South Carolina, South Dakota, Tennessee, Texas, U.S. Military, United States Virgin Islands, Utah, Vermont, Veteran Affairs, Virgin Islands, Virginia, Washington, West Virginia, Wisconsin, Wuhan Repatriated, Wyoming";
-
-
+        private static readonly IReadOnlyList<string> HEADER_LINE = new List<string>() {"Date","TOTAL","Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","District of Columbia","Federal Prisons","Florida","Georgia","Guam","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Navajo Nation","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Northern Mariana Islands","Ohio","Oklahoma","Oregon","Pennsylvania","Puerto Rico","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","U.S. Military","United States Virgin Islands","Utah","Vermont","Veteran Affairs","Virgin Islands","Virginia","Washington","West Virginia","Wisconsin","Wuhan Repatriated","Wyoming","American Samoa"};
+        private const string DELIMITER = ",";
 
         private string path;
         private List<String> stateNames;
@@ -24,7 +23,7 @@ namespace CovidDashboardScraper
                 CSVHandler output = new CSVHandler();
                 output.path = path;
 
-                output.stateNames = new List<String>(header.Split(", "));
+                output.stateNames = new List<String>(header.Split(DELIMITER));
                 output.stateNames.Remove("Date");
                 return output;
             }
@@ -35,7 +34,7 @@ namespace CovidDashboardScraper
         internal static void Create(string path)
         {
             using (StreamWriter writer = new StreamWriter(path))
-                writer.WriteLine(HEADER_LINE);
+                writer.WriteLine(String.Join(DELIMITER, HEADER_LINE));
         }
 
         public void Write(IEnumerable<TableRow> data, DateTime timestamp)
@@ -52,7 +51,7 @@ namespace CovidDashboardScraper
             {
                 fields.Add(dataIndexer[name].ToString());
             }
-            string line = fields.Aggregate((accumulator, next) => accumulator + ", " + next);
+            string line = String.Join(DELIMITER, fields);
 
             using (StreamWriter writer = new StreamWriter(this.path, append: true))
             {

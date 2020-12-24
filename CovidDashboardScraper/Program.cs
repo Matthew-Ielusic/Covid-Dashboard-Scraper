@@ -15,58 +15,65 @@ namespace CovidDashboardScraper
         private const string FILE_PATH = "historical.csv";
         private const string usaDataTable_xPath = "//table[@id='sortable_table_mobile_unitedstates']";
 
-        // We will have to sleep for an hour.
-        // Twelve hours in milliseconds = 1000 ms/s * 60 s/min * 60 min/hr * 12
-        private const int FOUR_HOURS = 1000 * 60 * 60 * 4;
+        // One hour in milliseconds = 1000 ms/s * 60 s/min * 60 min/hr
+        private const int FOUR_HOURS = 4 * (1000 * 60 * 60);
 
         public static async Task Main(string[] args)
         {
             try
             {
-                while (true)
-                {
-                    Task<string> scrapeTask = ScrapeAsync();
-
-                    if (!File.Exists(FILE_PATH))
-                    {
-                        CSVHandler.Create(FILE_PATH);
-                    }
-
-                    string scrapedPage = await scrapeTask;
-                    HtmlNodeCollection search = FindUsaData(scrapedPage);
-                    if (search.Count != 1)
-                    {
-                        throw new Exception("Found " + search.Count + "tables??!");
-                    }
-                    else
-                    {
-                        HtmlNode tableBody = search[0].SelectSingleNode("tbody");
-
-                        List<TableRow> processedHTML = new List<TableRow>();
-                        foreach (HtmlNode row in tableBody.ChildNodes)
-                        {
-                            if (row.Name.Equals("tr"))
-                            {
-                                TableRow processed = TableRow.Parse_tr_Element(row);
-                                processedHTML.Add(processed);
-                            }
-                        }
-
-                        CSVHandler handler = CSVHandler.MakeHandler(FILE_PATH);
-                        DateTime now = DateTime.Now;
-                        handler.Write(processedHTML, now);
-                        Console.WriteLine($"Finished a scraping at {now}");
-                        System.Threading.Thread.Sleep(FOUR_HOURS);
-                    }
-                }
+                await MainLoop();
             }
             catch (Exception e)
             {
-                Console.WriteLine("An exception was thrown, and this error handling is not sophisticated enough to figure out what went wrong.");
-                Console.WriteLine("Here is the exception:");
+                Console.WriteLine("There was an exception in parsing the HTML.");
+                Console.WriteLine("The exception was:");
                 Console.WriteLine(e);
-                Console.ReadLine();
-                throw e;
+                Console.WriteLine();
+                Console.WriteLine("Press any key to abort...");
+                Console.Read();
+                throw;
+            }
+        }
+
+        private static async Task MainLoop()
+        {
+            while (true)
+            {
+                Task<string> scrapeTask = ScrapeAsync();
+
+                if (!File.Exists(FILE_PATH))
+                {
+                    CSVHandler.Create(FILE_PATH);
+                }
+
+                string scrapedPage = await scrapeTask;
+                HtmlNodeCollection search = FindUsaData(scrapedPage);
+                if (search.Count != 1)
+                {
+                    throw new FormatException("Found " + search.Count + "tables??!");
+                }
+                else
+                {
+                    HtmlNode tableBody = search[0].SelectSingleNode("tbody");
+
+                    List<TableRow> processedHTML = new List<TableRow>();
+                    foreach (HtmlNode row in tableBody.ChildNodes)
+                    {
+                        if (row.Name.Equals("tr"))
+                        {
+                            TableRow processed = TableRow.Parse_tr_Element(row);
+                            processedHTML.Add(processed);
+                        }
+                    }
+
+                    CSVHandler handler = CSVHandler.MakeHandler(FILE_PATH);
+                    DateTime now = DateTime.Now;
+                    handler.Write(processedHTML, now);
+                    Console.WriteLine($"Finished a scraping at {now}");
+
+                    await Task.Delay(FOUR_HOURS);
+                }
             }
         }
 
